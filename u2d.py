@@ -51,13 +51,13 @@ class U2D:
 		for a in bs.find_all('p'):
 			try:
 				url=a.find('a')['href']
-				app=a.text
+				app=a.text.strip()
 				self.app.append(app)
 				self.url.append(url)
 			except: pass
 		de=bs.find_all('span',{'class':'app_card_system'})
 		for d in de:
-			self.dev.append(d.text)
+			self.dev.append(d.text.strip())
 		print()
 		self.show()
 
@@ -65,12 +65,15 @@ class U2D:
 		c=0
 		if len(self.app) == 0:
 			exit("[!] Aplikasi yang anda cari tidak tersedia")
-		for x in self.app:
-			print(f"""NUM [{c+1}]
-APP:{x}
-DEV:{self.dev[c]}
+		for x in self.app[0:16]:
+			try:
+				print(f"""NUM [{c+1}]
+APP: {x}
+DEV: {self.dev[c]}
 {'+='*20}""")
-			c+=1
+				c+=1
+			except: continue
+#		print(self.app[0:16])
 		self.pil=int(input("\n[?] pilih no: "))
 		url=self.url[self.pil-1]
 		self.dl(url)
@@ -80,8 +83,8 @@ DEV:{self.dev[c]}
 		r=self.req.get(url+'/download').text
 		bs2=BS(r,'html.parser')
 		rl=bs2.find('a',{'class':'data download'}).get('href')
-		size=bs2.find('p',{'class':'size'}).text
-		print(f"[Downloading]{self.app[self.pil-1]}\nUkuran:{size}")
+		size=bs2.find('p',{'class':'size'}).text.strip()
+		print(f"[Downloading]: {self.app[self.pil-1]}\nUkuran: {size}")
 		with open(self.app[self.pil-1].replace(' ','')+self.ex,'wb') as f:
 			response=requests.get(rl,stream=True,headers=head)
 			total_length=response.headers.get('content-length')
